@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Прогноз погоды</title>
+</head>
+<body>
+    <h1>Узнай погоду в своём городе</h1>
+
+    <form method="get">
+        <input type="text" name="city" placeholder="Введите город" required>
+        <button type="submit">Показать погоду</button>
+    </form>
+
+    {% if last_city %}
+    <p>Вы ранее смотрели погоду в <strong>{{ last_city }}</strong>.
+    <a href="/?city={{ last_city }}">Посмотреть ещё раз</a></p>
+    {% endif %}
+
+    {% if weather %}
+        <h2>Погода сейчас:</h2>
+        <p>Температура: {{ weather.temperature }}°C</p>
+        <p>Скорость ветра: {{ weather.windspeed }} км/ч</p>
+    {% elif error %}
+        <p style="color:red">{{ error }}</p>
+    {% endif %}
+
+    <!-- ⬇ Перенесённый скрипт -->
+    <script>
+        const input = document.querySelector('input[name="city"]');
+        const suggestions = document.createElement('ul');
+        input.parentNode.appendChild(suggestions);
+
+        input.addEventListener('input', async () => {
+            const query = input.value;
+            if (query.length < 2) {
+                suggestions.innerHTML = '';
+                return;
+            }
+
+            const response = await fetch(`/autocomplete/?q=${query}`);
+            const cities = await response.json();
+
+            suggestions.innerHTML = '';
+            cities.forEach(city => {
+                const li = document.createElement('li');
+                li.textContent = city;
+                li.style.cursor = 'pointer';
+                li.onclick = () => {
+                    input.value = city;
+                    suggestions.innerHTML = '';
+                };
+                suggestions.appendChild(li);
+            });
+        });
+    </script>
+</body>
+</html>
