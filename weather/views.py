@@ -41,11 +41,10 @@ def home(request):
                 weather_response = requests.get(weather_url).json()
                 weather_data = weather_response.get('current_weather', {})
 
-                # Устанавливаем куку с последним городом
                 response = render(request, 'weather/home.html', {
                     'weather': weather_data,
                     'error': error,
-                    'last_city': city  # передаём, чтобы показать сразу
+                    'last_city': city
                 })
                 response.set_cookie('last_city', city, max_age=60*60*24*30)  # 30 дней
                 return response
